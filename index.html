@@ -2410,7 +2410,382 @@
     </section>
   </main>  
 
+    <footer id="footer" class="footer">
+    <!-- Decorative leaf -->
+    <svg class="deco-leaf deco-leaf--footer-tl" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;">
+      <path d="M100 280 C100 280 10 200 10 120 C10 50 60 10 100 10 C140 10 190 50 190 120 C190 200 100 280 100 280Z" fill="url(#leafGrad4)"/>
+      <defs>
+        <linearGradient id="leafGrad4" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#7a4de8" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#c9a8ff" stop-opacity="0.2"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    
+    <img src="leaf2.png" class="png-leaf png-leaf--footer-tl" alt="" aria-hidden="true">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <span class="footer-name">Aakriti Aryal</span>
+        <p class="footer-tagline">Content Creator &amp; Digital Personality</p>
+      </div>
+      <div class="footer-social">
+        <a href="https://www.tiktok.com/@aakriti__aryal" target="_blank" rel="noopener noreferrer" aria-label="TikTok" class="footer-social-link">
+          <i class="fab fa-tiktok"></i>
+        </a>
+        <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="footer-social-link">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="#" target="_blank" rel="noopener noreferrer" aria-label="YouTube" class="footer-social-link">
+          <i class="fab fa-youtube"></i>
+        </a>
+      </div>
+      <p class="footer-copy">© <span id="footer-year"></span> Aakriti Aryal. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <button id="back-to-top" aria-label="Back to top" class="back-to-top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="lightbox-close" id="lightbox-close" aria-label="Close photo">
+      <i class="fas fa-times"></i>
+    </button>
+    <img id="lightbox-img" class="lightbox-img" src="" alt="">
+  </div>
+
+  <script>
+
+    const videoPlayers = [
+      { video: document.getElementById('video-1'), icon: document.getElementById('play-icon-1') },
+      { video: document.getElementById('video-2'), icon: document.getElementById('play-icon-2') },
+      { video: document.getElementById('video-3'), icon: document.getElementById('play-icon-3') },
+      { video: document.getElementById('video-4'), icon: document.getElementById('play-icon-4') },
+      { video: document.getElementById('video-5'), icon: document.getElementById('play-icon-5') },
+    ];
+
+    function pauseAllExcept(activeVideo) {
+      videoPlayers.forEach(({ video, icon }) => {
+        if (video && video !== activeVideo && !video.paused) {
+          video.pause();
+          video.currentTime = 0;
+          if (icon) { icon.style.opacity = '1'; }
+        }
+      });
+    }
+
+    videoPlayers.forEach(({ video, icon }) => {
+      if (!video || !icon) return;
+      video.addEventListener('click', () => {
+        if (video.paused) {
+          pauseAllExcept(video);
+          video.play();
+          icon.style.opacity = '0';
+        } else {
+          video.pause();
+          icon.style.opacity = '1';
+        }
+      });
+    });
+
+    const themeToggle = document.getElementByTd('theme-toggle');
+    const body = document.body;
+
+    if(localStroage.getItem('theme')==='day'){
+      body.classlist.add('day-mode');
+    }
+
+    function toggleTheme() {
+      body.classList.toggle('day-mode');
+      localStorage.setItem('theme', body.classList.contains('day-mode') ? 'day' : 'night');
+    }
+
+    if (themeToggle) {
+      themeToggle.addEventListener('click', toggleTheme);
+      themeToggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleTheme();
+        }
+      });
+    }
+
+    const hamburger = document.querySelection('.hamburger');
+    const navlinks = document.querySelection('.nav-links');
+
+    if (hamburger && navLinks) {
+      hamburger.addEventListener('click', () => {
+        const isOpen = navLinks.classList.toggle('open');
+        hamburger.setAttribute('aria-expanded', isOpen.toString());
+      });
+
+      navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          navLinks.classList.remove('open');
+          hamburger.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
+
+    function animationCounter(el, target, duration){
+      const startTime = performance.now();
+
+
+     function tick(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased);
+
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          el.textContent = target;
+        }
+      }
+
+      if (typeof requestAnimationFrame !== 'undefined') {
+        requestAnimationFrame(tick);
+      } else {
+        // Fallback for environments without rAF
+        let elapsed = 0;
+        const interval = setInterval(() => {
+          elapsed += 16;
+          const progress = Math.min(elapsed / duration, 1);
+          el.textContent = Math.round(target * progress);
+          if (progress >= 1) {
+            el.textContent = target;
+            clearInterval(interval);
+          }
+        }, 16);
+      }
+    }
+
+
+    function validateForm(fields){
+      const errors = { name: '', email: '', message: '', isValid: true };
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!fields.name.trim()) {
+        errors.name = 'Name is required.';
+        errors.isValid = false;
+      }
+
+      if (!fields.email.trim()) {
+        errors.email = 'Email is required.';
+        errors.isValid = false;
+      } else if (!emailRegex.test(fields.email.trim())) {
+        errors.email = 'Please enter a valid email address.';
+        errors.isValid = false;
+      }
+
+      if (!fields.message.trim()) {
+        errors.message = 'Message is required.';
+        errors.isValid = false;
+      }
+
+      return errors;
+    }
+
+     const contactForm  = document.getElementById('contact-form');
+    const formSuccess  = document.getElementById('form-success');
+    const formError    = document.getElementById('form-error');
+    const submitBtn    = document.getElementById('submit-btn');
+    const btnText      = document.getElementById('btn-text');
+    const btnLoading   = document.getElementById('btn-loading');
+
+    if (contactForm) {
+      contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const fields = {
+          name:    document.getElementById('name').value,
+          email:   document.getElementById('email').value,
+          message: document.getElementById('message').value,
+        };
+
+        
+        const result = validateForm(fields);
+
+        ['name', 'email', 'message'].forEach(field => {
+          const errorEl = document.getElementById(`${field}-error`);
+          const inputEl = document.getElementById(field);
+          if (result[field]) {
+            errorEl.textContent = result[field];
+            errorEl.classList.add('visible');
+            inputEl.classList.add('error');
+          } else {
+            errorEl.textContent = '';
+            errorEl.classList.remove('visible');
+            inputEl.classList.remove('error');
+          }
+        });
+
+        if (!result.isValid) {
+          formSuccess.setAttribute('hidden', '');
+          formError.setAttribute('hidden', '');
+          return;
+        }
+
+       
+        submitBtn.disabled = true;
+        btnText.setAttribute('hidden', '');
+        btnLoading.removeAttribute('hidden');
+        formSuccess.setAttribute('hidden', '');
+        formError.setAttribute('hidden', '');
+
+        
+        try {
+          const formData = new FormData(contactForm);
+          const response = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            
+            contactForm.reset();
+            formSuccess.removeAttribute('hidden');
+            
+            setTimeout(() => formSuccess.setAttribute('hidden', ''), 6000);
+          } else {
+            
+            formError.removeAttribute('hidden');
+            setTimeout(() => formError.setAttribute('hidden', ''), 6000);
+          }
+        } catch (err) {
+          
+          formError.removeAttribute('hidden');
+          setTimeout(() => formError.setAttribute('hidden', ''), 6000);
+        } finally {
+         
+          submitBtn.disabled = false;
+          btnText.removeAttribute('hidden');
+          btnLoading.setAttribute('hidden', '');
+        }
+      });
+    }
+
+    const footerYear = document.getElementById('footeer-year');
+    if (footerYear){
+      footerYear.textContent = new Data().getFullYear();
+    }
+
+    const backToTopBtn = document.getElementByID('back-to-top');
+
+    if(backToTopBtn){
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+          backToTopBtn.classList.add('visible');
+        } else {
+          backToTopBtn.classList.remove('visible');
+        }
+      }, { passive: true });
+
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    function initScrollAnimations() {
+      const animatedEls = document.querySelectorAll('.animate-on-scroll');
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+
+              // Trigger stat counters when stats section enters view
+              if (entry.target.id === 'stats') {
+                entry.target.querySelectorAll('.stat-number').forEach(el => {
+                  const target   = parseInt(el.getAttribute('data-count'), 10);
+                  const duration = parseInt(el.getAttribute('data-duration'), 10);
+                  animateCounter(el, target, duration);
+                });
+              }
+
+              // One-shot: stop observing after animation triggered
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+
+        animatedEls.forEach(el => observer.observe(el));
+      } else {
+        // Fallback: immediately show all sections
+        animatedEls.forEach(el => el.classList.add('visible'));
+
+        // Also trigger counters immediately
+        document.querySelectorAll('.stat-number').forEach(el => {
+          const target   = parseInt(el.getAttribute('data-count'), 10);
+          const duration = parseInt(el.getAttribute('data-duration'), 10);
+          animateCounter(el, target, duration);
+        });
+      }
+    }
+
+    // Initialise on DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initScrollAnimations);
+    } else {
+      initScrollAnimations();
+    }
+    const lightbox = documents.getElementsByTd('lightbox');
+    const lightboxImg = documents.getElementsById('lightbox-img');
+
+    document.querySelectionAll('.gallery-item').forEach(item =>{
+      const overlay = item.querySelector('.gallery-overlay');
+      const img     = item.querySelector('img');
+      if (overlay && img) {
+        overlay.addEventListener('click', (e) => {
+          e.stopPropagation();
+          lightboxImg.src = img.src;
+          lightboxImg.alt = img.alt;
+          lightbox.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+    }); 
+
+    lightbox.addEventListener('click',() => {
+      lightbox.classList.remove('active');
+      document.body.style.overflow='';
+    })
+
+    const lightboxClose - document.getElementById('lightbox-close');
+    if (lightboxClose) {
+      lightboxClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+    }
+    
+    lightboxImg.addEventListener('click',(e) => e.stopPropagation());
+
+    document.addEventListener('keydown',(e)=>{
+      if (e.key === 'Escape') {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
   
+    </script>
+
+
+
+    
+
+
+
+
+
+
+
   
 
 
