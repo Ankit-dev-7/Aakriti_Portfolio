@@ -330,23 +330,22 @@
       width: 100%;
     }
 
-    .nav-cta {
-      background: var(--gradient-accent) !important;
-      color: #fff !important;
+    .nav-links a.active {
+      background: var(--gradient-accent);
+      color: #fff;
       padding: 0.5rem 1.25rem;
       border-radius: var(--radius-pill);
-      font-weight: var(--font-semibold) !important;
-      transition: var(--transition-fast) !important;
+      font-weight: var(--font-semibold);
     }
 
-    .nav-cta:hover {
-      opacity: 0.9 !important;
+    .nav-links a.active::after {
+      display: none;
+    }
+
+    .nav-links a.active:hover {
+      opacity: 0.9;
       transform: translateY(-2px);
-      box-shadow: 0 6px 28px rgba(122, 77, 232, 0.45), 0 0 0 1px rgba(201, 168, 255, 0.2) !important;
-    }
-
-    .nav-cta::after {
-      display: none !important;
+      box-shadow: 0 6px 28px rgba(122, 77, 232, 0.45), 0 0 0 1px rgba(201, 168, 255, 0.2);
     }
 
 
@@ -406,11 +405,9 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
 
-      .nav-cta {
-        margin: 1rem 2rem;
-        display: inline-block;
-        text-align: center;
-        border-radius: var(--radius-pill) !important;
+      .nav-links a.active {
+        padding: 1rem 2rem;
+        border-radius: 0;
       }
     }
 
@@ -1950,9 +1947,9 @@
         <span></span>
       </button>
       <ul class="nav-links">
-        <li><a href="#videos">Videos</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#stats">Stats</a></li>
+        <li><a href="#videos">Videos</a></li>
         <li><a href="#gallery">Gallery</a></li>
         <li><a href="#contact" class="nav-cta">Contact</a></li>
       </ul>
@@ -2568,6 +2565,37 @@
     const navLinks = document.querySelector('.nav-links');
 
     if (hamburger && navLinks) {
+      const sectionLinks = [...navLinks.querySelectorAll('a[href^="#"]')]
+        .map(link => ({ link, section: document.querySelector(link.getAttribute('href')) }))
+        .filter(item => item.section)
+        .sort((a, b) => a.section.offsetTop - b.section.offsetTop);
+
+      function updateActiveNavLink() {
+        const header = document.getElementById('header');
+        const activationPoint = header.getBoundingClientRect().bottom + 24;
+        let activeLink = null;
+
+        sectionLinks.forEach(({ link, section }) => {
+          if (section.getBoundingClientRect().top <= activationPoint) {
+            activeLink = link;
+          }
+        });
+
+        sectionLinks.forEach(({ link }) => {
+          const isActive = link === activeLink;
+          link.classList.toggle('active', isActive);
+          if (isActive) {
+            link.setAttribute('aria-current', 'location');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        });
+      }
+
+      window.addEventListener('scroll', updateActiveNavLink, { passive: true });
+      window.addEventListener('resize', updateActiveNavLink);
+      updateActiveNavLink();
+
       hamburger.addEventListener('click', () => {
         const isOpen = navLinks.classList.toggle('open');
         hamburger.setAttribute('aria-expanded', isOpen.toString());
